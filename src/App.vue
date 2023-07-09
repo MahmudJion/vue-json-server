@@ -45,32 +45,35 @@ export default {
   async mounted() {
     try {
       const res = await axios.get(`http://localhost:3000/shipments`);
-
       this.shipments = res.data.slice(0, 20);
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      console.error(error);
     }
   },
   computed: {
     ShipmentsFilteredList() {
-      return this.shipments.filter((shipment) => {
-        return shipment.name.toLowerCase().includes(this.search.toLowerCase());
-      });
+      return this.shipments.filter((shipment) =>
+        shipment.name.toLowerCase().includes(this.search.toLowerCase())
+      );
     },
   },
   methods: {
-    getNextPosts: function() {
-      axios
-        .get("http://localhost:3000/shipments")
-        .then((res) => {
-          this.shipments = [...this.shipments, ...res.data.slice(20, 40)];
-        })
-        .catch((error) => {
-          console.log(error);
+    async getNextPosts() {
+      try {
+        const res = await axios.get("http://localhost:3000/shipments", {
+          params: {
+            _start: this.shipments.length,
+            _limit: 20,
+          },
         });
+        this.shipments = [...this.shipments, ...res.data];
+      } catch (error) {
+        console.log(error);
+      }
     },
   },
 };
 </script>
+
 
 <style></style>
